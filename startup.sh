@@ -6,7 +6,7 @@ PORT=${PORT:-8000}
 
 echo "=========================================="
 echo "🚀 Iniciando FastAPI en el puerto $PORT"
-echo "📁 Archivo principal: Main.py"
+echo "📁 Archivo principal: backend/main.py"
 echo "🔧 Instancia de FastAPI: app"
 echo "=========================================="
 
@@ -14,4 +14,4 @@ echo "=========================================="
 # IMPORTANTE: si cambias el nombre del archivo o la instancia,
 # cambia "Main:app" por "archivo:instancia"
 
-gunicorn -w 4 -k uvicorn.workers.UvicornWorker Main:app --bind 0.0.0.0:$PORT
+gunicorn -w 4 -k uvicorn.workers.UvicornWorker backend.main:app --bind 0.0.0.0:$PORT
