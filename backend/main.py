@@ -4,11 +4,9 @@ from pathlib import Path
 
 app = FastAPI(title="UniSpace API")
 
-# Ruta del archivo usuarios.txt
 RUTA_USUARIOS = Path(__file__).parent / "usuarios.txt"
 
 
-# Modelo para recibir datos del login
 class LoginRequest(BaseModel):
     usuario: str
     contrasena: str
