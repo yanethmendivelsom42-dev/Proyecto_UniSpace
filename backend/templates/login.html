@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Login UniSpace</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .contenedor {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            width: 350px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #1f4e79;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-top: 10px;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #1f4e79;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #163a5c;
+        }
+
+        .mensaje {
+            margin-top: 15px;
+            text-align: center;
+            font-weight: bold;
+            color: #d9534f;
+        }
+    </style>
+</head>
+<body>
+    <div class="contenedor">
+        <h1>UniSpace Login</h1>
+
+        <form action="/login" method="post">
+            <label for="usuario">Usuario</label>
+            <input type="text" id="usuario" name="usuario" placeholder="Ingrese su correo" required>
+
+            <label for="contrasena">Contraseña</label>
+            <input type="password" id="contrasena" name="contrasena" placeholder="Ingrese su contraseña" required>
+
+            <button type="submit">Ingresar</button>
+        </form>
+
+        {% if mensaje %}
+        <div class="mensaje">
+            {{ mensaje }}
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>

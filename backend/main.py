@@ -1,15 +1,13 @@
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
+from fastapi import FastAPI, Request, Form
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
 from pathlib import Path
 
 app = FastAPI(title="UniSpace API")
 
-RUTA_USUARIOS = Path(__file__).parent / "usuarios.txt"
-
-
-class LoginRequest(BaseModel):
-    usuario: str
-    contrasena: str
+BASE_DIR = Path(__file__).parent
+RUTA_USUARIOS = BASE_DIR / "usuarios.txt"
+templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
 
 
 def cargar_usuarios():
@@ -38,36 +36,35 @@ def cargar_usuarios():
     return usuarios
 
 
-@app.get("/")
-def inicio():
-    return {
-        "mensaje": "Bienvenido a UniSpace API",
-        "descripcion": "API funcionando correctamente en Azure"
-    }
+@app.get("/", response_class=HTMLResponse)
+def mostrar_login(request: Request):
+    return templates.TemplateResponse(
+        "login.html",
+        {
+            "request": request,
+            "mensaje": ""
+        }
+    )
+
+
+@app.post("/login", response_class=HTMLResponse)
+def login(request: Request, usuario: str = Form(...), contrasena: str = Form(...)):
+    usuarios = cargar_usuarios()
+
+    if usuario in usuarios and usuarios[usuario] == contrasena:
+        mensaje = f"Bienvenido, {usuario}"
+    else:
+        mensaje = "Usuario o contraseña incorrectos"
+
+    return templates.TemplateResponse(
+        "login.html",
+        {
+            "request": request,
+            "mensaje": mensaje
+        }
+    )
 
 
 @app.get("/health")
 def health():
     return {"status": "ok"}
-
-
-@app.get("/usuarios")
-def listar_usuarios():
-    usuarios = cargar_usuarios()
-    return {
-        "total_usuarios": len(usuarios),
-        "usuarios": list(usuarios.keys())
-    }
-
-
-@app.post("/login")
-def login(datos: LoginRequest):
-    usuarios = cargar_usuarios()
-
-    if datos.usuario in usuarios and usuarios[datos.usuario] == datos.contrasena:
-        return {
-            "mensaje": "Inicio de sesión exitoso",
-            "usuario": datos.usuario
-        }
-
-    raise HTTPException(status_code=401, detail="Usuario o contraseña incorrectos")
