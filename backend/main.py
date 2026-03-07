@@ -1,13 +1,18 @@
 from fastapi import FastAPI, Request, Form
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from pathlib import Path
+import json
 
 app = FastAPI(title="UniSpace API")
 
 BASE_DIR = Path(__file__).parent
 RUTA_USUARIOS = BASE_DIR / "usuarios.txt"
+RUTA_RESERVAS = BASE_DIR / "reservas.json"
 templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
+
+HORAS = ["08:00", "09:00", "10:00", "11:00", "12:00"]
+SALAS_BASE = ["Sala 101", "Sala 102", "Sala 201"]
 
 
 def cargar_usuarios():
@@ -36,6 +41,32 @@ def cargar_usuarios():
     return usuarios
 
 
+def crear_reservas_iniciales():
+    reservas = []
+
+    for sala in SALAS_BASE:
+        item = {"sala": sala}
+        for hora in HORAS:
+            item[hora] = "Libre"
+        reservas.append(item)
+
+    with open(RUTA_RESERVAS, "w", encoding="utf-8") as archivo:
+        json.dump(reservas, archivo, ensure_ascii=False, indent=4)
+
+
+def cargar_reservas():
+    if not RUTA_RESERVAS.exists():
+        crear_reservas_iniciales()
+
+    with open(RUTA_RESERVAS, "r", encoding="utf-8") as archivo:
+        return json.load(archivo)
+
+
+def guardar_reservas(reservas):
+    with open(RUTA_RESERVAS, "w", encoding="utf-8") as archivo:
+        json.dump(reservas, archivo, ensure_ascii=False, indent=4)
+
+
 @app.get("/", response_class=HTMLResponse)
 def mostrar_login(request: Request):
     return templates.TemplateResponse(
@@ -52,14 +83,94 @@ def login(request: Request, usuario: str = Form(...), contrasena: str = Form(...
     usuarios = cargar_usuarios()
 
     if usuario in usuarios and usuarios[usuario] == contrasena:
-        mensaje = f"Bienvenido, {usuario}"
-    else:
-        mensaje = "Usuario o contraseña incorrectos"
+        return RedirectResponse(url=f"/dashboard?usuario={usuario}", status_code=303)
 
     return templates.TemplateResponse(
         "login.html",
         {
             "request": request,
+            "mensaje": "Usuario o contraseña incorrectos"
+        }
+    )
+
+
+@app.get("/dashboard", response_class=HTMLResponse)
+def dashboard(request: Request, usuario: str = "", mensaje: str = ""):
+    salas = cargar_reservas()
+
+    return templates.TemplateResponse(
+        "dashboard.html",
+        {
+            "request": request,
+            "usuario": usuario,
+            "salas": salas,
+            "horas": HORAS,
+            "mensaje": mensaje
+        }
+    )
+
+
+@app.post("/reservar", response_class=HTMLResponse)
+def reservar(
+    request: Request,
+    usuario: str = Form(...),
+    sala: str = Form(...),
+    hora: str = Form(...)
+):
+    reservas = cargar_reservas()
+    mensaje = ""
+
+    for item in reservas:
+        if item["sala"] == sala:
+            if item.get(hora) == "Libre":
+                item[hora] = f"Ocupado por {usuario}"
+                mensaje = f"Reserva realizada en {sala} a las {hora}"
+            else:
+                mensaje = f"La {sala} a las {hora} ya está ocupada"
+            break
+
+    guardar_reservas(reservas)
+
+    return templates.TemplateResponse(
+        "dashboard.html",
+        {
+            "request": request,
+            "usuario": usuario,
+            "salas": reservas,
+            "horas": HORAS,
+            "mensaje": mensaje
+        }
+    )
+
+
+@app.post("/cancelar", response_class=HTMLResponse)
+def cancelar(
+    request: Request,
+    usuario: str = Form(...),
+    sala: str = Form(...),
+    hora: str = Form(...)
+):
+    reservas = cargar_reservas()
+    mensaje = ""
+
+    for item in reservas:
+        if item["sala"] == sala:
+            if item.get(hora) != "Libre":
+                item[hora] = "Libre"
+                mensaje = f"Reserva cancelada en {sala} a las {hora}"
+            else:
+                mensaje = f"La {sala} a las {hora} ya estaba libre"
+            break
+
+    guardar_reservas(reservas)
+
+    return templates.TemplateResponse(
+        "dashboard.html",
+        {
+            "request": request,
+            "usuario": usuario,
+            "salas": reservas,
+            "horas": HORAS,
             "mensaje": mensaje
         }
     )
