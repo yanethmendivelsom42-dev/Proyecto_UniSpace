@@ -1,7 +1,9 @@
-from fastapi import FastAPI, Request, Form
+from fastapi import FastAPI, Request, Form, HTTPException, Query
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
+from pydantic import BaseModel
 from pathlib import Path
+from typing import Optional
 import json
 
 app = FastAPI(title="UniSpace API")
@@ -13,6 +15,13 @@ templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
 
 HORAS = ["08:00", "09:00", "10:00", "11:00", "12:00"]
 SALAS_BASE = ["Sala 101", "Sala 102", "Sala 201"]
+class Reserva(BaseModel):
+    id: int
+    usuario: str
+    sala: str
+    activa: bool
+    valor: float
+reservas_api_db = []
 
 
 def cargar_usuarios():
@@ -179,3 +188,51 @@ def cancelar(
 @app.get("/health")
 def health():
     return {"status": "ok"}
+
+@app.get("/api/reservas")
+def obtener_reservas():
+    return reservas_api_db
+
+
+@app.post("/api/reservas")
+def crear_reserva(reserva: Reserva):
+    for item in reservas_api_db:
+        if item["id"] == reserva.id:
+            raise HTTPException(status_code=400, detail="Ya existe una reserva con ese ID")
+
+    nueva_reserva = reserva.dict()
+    reservas_api_db.append(nueva_reserva)
+
+    return {
+        "mensaje": "Reserva creada correctamente",
+        "reserva": nueva_reserva
+    }
+
+
+@app.get("/api/reservas/{reserva_id}")
+def obtener_reserva_por_id(reserva_id: int):
+    for reserva in reservas_api_db:
+        if reserva["id"] == reserva_id:
+            return reserva
+
+    raise HTTPException(status_code=404, detail="Reserva no encontrada")
+
+
+@app.get("/api/reservas/filtro/")
+def filtrar_reservas(
+    usuario: Optional[str] = Query(default=None),
+    sala: Optional[str] = Query(default=None),
+    activa: Optional[bool] = Query(default=None)
+):
+    resultados = reservas_api_db
+
+    if usuario is not None:
+        resultados = [r for r in resultados if r["usuario"].lower() == usuario.lower()]
+
+    if sala is not None:
+        resultados = [r for r in resultados if r["sala"].lower() == sala.lower()]
+
+    if activa is not None:
+        resultados = [r for r in resultados if r["activa"] == activa]
+
+    return resultados
