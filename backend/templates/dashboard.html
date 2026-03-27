@@ -212,7 +212,7 @@
                     <tr>
                         <td>{{ sala }}</td>
                         {% for hora in horas %}
-                        <td>{{ reservas[sala][hora] }}</td>
+                        <td>{{ reservas.get(sala, {}).get(hora, "Libre") }}</td>
                         {% endfor %}
                     </tr>
                     {% endfor %}
