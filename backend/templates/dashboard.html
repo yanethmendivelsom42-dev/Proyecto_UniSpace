@@ -156,8 +156,8 @@
 
                         <label for="sala">Sala</label>
                         <select name="sala" id="sala" required>
-                            {% for item in salas %}
-                            <option value="{{ item.sala }}">{{ item.sala }}</option>
+                            {% for sala in salas %}
+                            <option value="{{ sala }}">{{ sala }}</option>
                             {% endfor %}
                         </select>
 
@@ -179,8 +179,8 @@
 
                         <label for="sala_cancelar">Sala</label>
                         <select name="sala" id="sala_cancelar" required>
-                            {% for item in salas %}
-                            <option value="{{ item.sala }}">{{ item.sala }}</option>
+                            {% for sala in salas %}
+                            <option value="{{ sala }}">{{ sala }}</option>
                             {% endfor %}
                         </select>
 
@@ -208,11 +208,11 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for item in salas %}
+                    {% for sala in salas %}
                     <tr>
-                        <td>{{ item.sala }}</td>
+                        <td>{{ sala }}</td>
                         {% for hora in horas %}
-                        <td>{{ item[hora] }}</td>
+                        <td>{{ reservas[sala][hora] }}</td>
                         {% endfor %}
                     </tr>
                     {% endfor %}
