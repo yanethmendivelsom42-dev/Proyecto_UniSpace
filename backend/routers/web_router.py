@@ -39,13 +39,19 @@ def reservar(
 ):
     resultado = reservar_sala(sala, hora, usuario)
 
-    if resultado["ok"]:
-        return RedirectResponse(
-            url=f"/dashboard?usuario={usuario}&mensaje={resultado['mensaje']}",
-            status_code=303
-        )
-
     return RedirectResponse(
         url=f"/dashboard?usuario={usuario}&mensaje={resultado['mensaje']}",
+        status_code=303
+    )
+
+@router.post("/cancelar")
+def cancelar(
+    request: Request,
+    sala: str = Form(...),
+    hora: str = Form(...),
+    usuario: str = Form(...)
+):
+    return RedirectResponse(
+        url=f"/dashboard?usuario={usuario}&mensaje=Función de cancelar pendiente de implementar",
         status_code=303
     )
