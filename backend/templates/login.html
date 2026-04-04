@@ -2,90 +2,293 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Login UniSpace</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UniSpace | Ingreso</title>
     <style>
+        :root {
+            --azul-principal: #1f4f96;
+            --azul-secundario: #2b67b0;
+            --fondo-azul: #2f5f9f;
+            --blanco: #ffffff;
+            --gris-suave: #f8fafc;
+            --gris-borde: #d9e1ec;
+            --texto: #1f2937;
+            --texto-secundario: #5f6b7a;
+            --acento: #cfae52;
+            --error-fondo: #fff1f2;
+            --error-texto: #b42318;
+            --sombra: 0 24px 50px rgba(0, 0, 0, 0.16);
+            --radio-xl: 30px;
+            --radio-lg: 18px;
+            --radio-md: 14px;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f6f8;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
             margin: 0;
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #2c5b99 0%, #396db5 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 28px;
         }
 
-        .contenedor {
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            width: 350px;
+        .layout {
+            width: 100%;
+            max-width: 1120px;
+            min-height: 620px;
+            display: grid;
+            grid-template-columns: 1fr 0.95fr;
+            border-radius: 34px;
+            overflow: hidden;
+            box-shadow: var(--sombra);
+            background: rgba(255,255,255,0.08);
         }
 
-        h1 {
-            text-align: center;
-            color: #1f4e79;
-            margin-bottom: 20px;
+        .hero {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--blanco);
+            padding: 42px 42px 34px;
+            display: flex;
+            align-items: center;
+        }
+
+        .hero-content {
+            width: 100%;
+            max-width: 520px;
+        }
+
+        .logo-wrap {
+            margin-bottom: 28px;
+        }
+
+        .logo-wrap img {
+            max-width: 320px;
+            width: 100%;
+            height: auto;
+            display: block;
+            background: rgba(255,255,255,0.96);
+            border-radius: 16px;
+            padding: 10px 12px;
+        }
+
+        .hero-copy h1 {
+            margin: 0 0 12px;
+            font-size: 34px;
+            line-height: 1.2;
+            font-weight: 700;
+        }
+
+        .hero-copy p {
+            margin: 0;
+            font-size: 17px;
+            line-height: 1.7;
+            color: rgba(255,255,255,0.92);
+            max-width: 470px;
+        }
+
+        .panel {
+            background: #fbfbfc;
+            padding: 44px 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card {
+            width: 100%;
+            max-width: 420px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 10px 15px;
+            border-radius: 999px;
+            background: rgba(207, 174, 82, 0.18);
+            color: #8a6a15;
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 18px;
+        }
+
+        .card h2 {
+            margin: 0 0 14px;
+            color: #0f468d;
+            font-size: 38px;
+            line-height: 1.15;
+        }
+
+        .card p {
+            margin: 0 0 28px;
+            color: var(--texto-secundario);
+            font-size: 17px;
+            line-height: 1.7;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
         }
 
         label {
-            display: block;
-            margin-top: 10px;
-            margin-bottom: 5px;
+            font-size: 15px;
             font-weight: bold;
+            color: #111827;
         }
 
         input {
             width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            margin-bottom: 10px;
-            box-sizing: border-box;
+            padding: 16px 18px;
+            border-radius: 16px;
+            border: 1px solid var(--gris-borde);
+            font-size: 16px;
+            outline: none;
+            background: var(--gris-suave);
+            transition: 0.2s ease;
+        }
+
+        input:focus {
+            border-color: var(--azul-secundario);
+            box-shadow: 0 0 0 4px rgba(43, 103, 176, 0.12);
+            background: var(--blanco);
         }
 
         button {
-            width: 100%;
-            padding: 10px;
-            background-color: #1f4e79;
-            color: white;
+            margin-top: 4px;
+            padding: 17px;
             border: none;
-            border-radius: 8px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #0f4d98, #2762aa);
+            color: var(--blanco);
+            font-size: 18px;
+            font-weight: bold;
             cursor: pointer;
-            font-size: 16px;
+            box-shadow: 0 12px 24px rgba(15, 77, 152, 0.20);
+            transition: 0.2s ease;
         }
 
         button:hover {
-            background-color: #163a5c;
+            transform: translateY(-1px);
         }
 
         .mensaje {
-            margin-top: 15px;
-            text-align: center;
+            margin-top: 18px;
+            padding: 13px 15px;
+            border-radius: 14px;
+            background: var(--error-fondo);
+            color: var(--error-texto);
+            font-size: 14px;
             font-weight: bold;
-            color: #d9534f;
+            text-align: center;
+        }
+
+        .footer-note {
+            margin-top: 24px;
+            text-align: center;
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        @media (max-width: 980px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+
+            .hero {
+                padding: 34px 26px 26px;
+            }
+
+            .panel {
+                padding: 34px 22px;
+            }
+
+            .hero-copy h1 {
+                font-size: 30px;
+            }
+
+            .logo-wrap img {
+                max-width: 280px;
+            }
+        }
+
+        @media (max-width: 560px) {
+            body {
+                padding: 14px;
+            }
+
+            .hero-copy h1 {
+                font-size: 26px;
+            }
+
+            .card h2 {
+                font-size: 30px;
+            }
+
+            .logo-wrap img {
+                max-width: 100%;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="contenedor">
-        <h1>UniSpace Login</h1>
+    <main class="layout">
+        <section class="hero">
+            <div class="hero-content">
+                <div class="logo-wrap">
+                    <img src="/static/img/logo_ucatolica.png" alt="Universidad Católica de Colombia">
+                </div>
 
-        <form action="/login" method="post">
-            <label for="correo">Usuario</label>
-            <input type="text" id="correo" name="correo" placeholder="Ingrese su correo" required>
+                <div class="hero-copy">
+                    <h1>Reserva de salas</h1>
+                    <p>
+                        Plataforma institucional para gestionar espacios académicos de forma rápida y sencilla.
+                    </p>
+                </div>
+            </div>
+        </section>
 
-            <label for="contrasena">Contraseña</label>
-            <input type="password" id="contrasena" name="contrasena" placeholder="Ingrese su contraseña" required>
+        <section class="panel">
+            <div class="card">
+                <h2>Iniciar sesión</h2>
+                <p>Ingresa tus datos para continuar al módulo de reservas.</p>
 
-            <button type="submit">Ingresar</button>
-        </form>
+                <form action="/login" method="post">
+                    <div class="field">
+                        <label for="correo">Correo o usuario</label>
+                        <input type="text" id="correo" name="correo" placeholder="Ej: nombre@ucatolica.edu.co" required>
+                    </div>
 
-        {% if mensaje %}
-        <div class="mensaje">
-            {{ mensaje }}
-        </div>
-        {% endif %}
-    </div>
+                    <div class="field">
+                        <label for="contrasena">Contraseña</label>
+                        <input type="password" id="contrasena" name="contrasena" placeholder="Ingresa tu contraseña" required>
+                    </div>
+
+                    <button type="submit">Ingresar a UniSpace</button>
+                </form>
+
+                {% if mensaje %}
+                <div class="mensaje">
+                    {{ mensaje }}
+                </div>
+                {% endif %}
+
+                <div class="footer-note">
+                    Universidad Católica de Colombia · Sistema de reservas
+                </div>
+            </div>
+        </section>
+    </main>
 </body>
 </html>
