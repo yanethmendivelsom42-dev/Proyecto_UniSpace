@@ -1,644 +1,156 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>UniSpace — Mis Reservas</title>
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --uc-blue: #0057A8;
-      --uc-blue-dark: #003F7A;
-      --uc-gold: #F0B429;
-      --uc-blue-pale: #E8F1FB;
-      --text: #1C2B45;
-      --muted: #6B7C93;
-      --border: #D9E4EE;
-      --surface: #FFFFFF;
-      --bg: #F4F8FD;
-      --green: #16A34A;
-      --green-bg: #F0FBF4;
-      --red: #DC2626;
-      --red-bg: #FEF2F2;
-      --gold-text: #92640A;
-      --uc-gold-light: #FFF8E6;
-      --gray-text: #475569;
-      --gray-bg: #F1F5F9;
-      --gray-border: #CBD5E1;
-    }
+<meta charset="UTF-8">
+<title>UniSpace</title>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: #f5f7fb;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table th, .table td {
+    padding: 10px;
+    text-align: center;
+}
+
+/* 🔹 ESTADOS */
+.slot {
+    padding: 6px 12px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+/* 🟢 Libre */
+.slot.libre {
+    background: #E8F8EE;
+    color: #16A34A;
+    border: 1px solid #A7F3D0;
+}
+
+/* 🟡 Mi reserva */
+.slot.mia {
+    background: #FFF8E6;
+    color: #B45309;
+    border: 1px solid #FACC15;
+}
+
+/* 🔴 Ocupado (AQUÍ ESTÁ EL CAMBIO IMPORTANTE) */
+.slot.ocupado {
+    background: #FEF2F2;
+    color: #DC2626;
+    border: 1px solid #FCA5A5;
+}
+
+/* 🔹 Leyenda */
+.legend {
+    margin-top: 10px;
+}
+
+.legend span {
+    margin-right: 15px;
+}
+
+/* 🔴 badge rojo */
+.legend .ocupado {
+    color: #DC2626;
+}
+
+/* 🟡 badge */
+.legend .mia {
+    color: #B45309;
+}
+
+/* 🟢 badge */
+.legend .libre {
+    color: #16A34A;
+}
+
+button {
+    padding: 8px;
+    margin-top: 5px;
+    cursor: pointer;
+}
+
+.cancel-btn {
+    background: white;
+    border: 1px solid red;
+    color: red;
+    border-radius: 6px;
+}
+</style>
 
-    *, *::before, *::after {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .topnav {
-      height: 70px;
-      background: var(--uc-blue);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 28px;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      box-shadow: 0 2px 12px rgba(0,63,122,0.25);
-    }
-
-    .nav-left {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .brand-logo {
-      width: 42px;
-      height: 42px;
-      object-fit: contain;
-      border-radius: 8px;
-      background: white;
-      padding: 4px;
-    }
-
-    .nav-brand-text {
-      color: white;
-      display: flex;
-      flex-direction: column;
-      line-height: 1.2;
-    }
-
-    .nav-brand-text .app-name {
-      font-family: 'Syne', sans-serif;
-      font-size: 18px;
-      font-weight: 800;
-    }
-
-    .nav-brand-text .app-name span {
-      color: var(--uc-gold);
-    }
-
-    .uni-name {
-      font-size: 12px;
-      opacity: 0.95;
-    }
-
-    .user-chip {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      background: rgba(255,255,255,0.12);
-      border-radius: 100px;
-      padding: 5px 14px 5px 5px;
-    }
-
-    .user-avatar {
-      width: 30px;
-      height: 30px;
-      background: var(--uc-gold);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 800;
-      color: #1b2a44;
-    }
-
-    .user-label {
-      color: white;
-      font-size: 14px;
-      font-weight: 600;
-    }
-
-    .app-body {
-      display: flex;
-      flex: 1;
-    }
-
-    .sidebar {
-      width: 220px;
-      background: var(--surface);
-      border-right: 1px solid var(--border);
-      padding: 20px 0;
-      flex-shrink: 0;
-    }
-
-    .sidebar-title {
-      font-size: 12px;
-      color: var(--muted);
-      font-weight: 700;
-      letter-spacing: 1px;
-      margin: 0 22px 12px;
-      text-transform: uppercase;
-    }
-
-    .sidebar-menu {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      padding: 0 14px;
-    }
-
-    .menu-item {
-      display: flex;
-      align-items: center;
-      gap: 11px;
-      padding: 12px 13px;
-      border-radius: 10px;
-      font-size: 14px;
-      color: var(--muted);
-      text-decoration: none;
-    }
-
-    .menu-item.active {
-      background: var(--uc-blue-pale);
-      color: var(--uc-blue);
-      font-weight: 600;
-    }
-
-    .main {
-      flex: 1;
-      padding: 30px 32px;
-      overflow-y: auto;
-    }
-
-    .action-msg {
-      background: var(--uc-blue-pale);
-      color: var(--uc-blue-dark);
-      padding: 12px 16px;
-      border-radius: 12px;
-      margin-bottom: 24px;
-      border: 1px solid var(--border);
-      font-weight: 600;
-    }
-
-    .page-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 24px;
-      gap: 16px;
-    }
-
-    .page-title h1 {
-      font-family: 'Syne', sans-serif;
-      font-size: 28px;
-      margin-bottom: 6px;
-    }
-
-    .page-title p {
-      color: var(--muted);
-      font-size: 14px;
-    }
-
-    .mini-date {
-      background: white;
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 14px 18px;
-      text-align: center;
-      min-width: 150px;
-    }
-
-    .mini-date .d1 {
-      font-weight: 700;
-    }
-
-    .mini-date .d2 {
-      color: var(--muted);
-      font-size: 13px;
-    }
-
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 14px;
-      margin-bottom: 28px;
-    }
-
-    .stat {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 22px;
-      text-align: center;
-    }
-
-    .stat-val {
-      font-family: 'Syne', sans-serif;
-      font-size: 26px;
-      font-weight: 800;
-    }
-
-    .stat-lbl {
-      font-size: 11.5px;
-      color: var(--muted);
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: 1fr 320px;
-      gap: 22px;
-    }
-
-    .card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 18px;
-      overflow: hidden;
-      margin-bottom: 20px;
-    }
-
-    .card-head {
-      padding: 18px 22px;
-      border-bottom: 1px solid var(--border);
-      background: #EDF3FA;
-      font-family: 'Syne', sans-serif;
-      font-weight: 700;
-    }
-
-    .avail-table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-
-    .avail-table th,
-    .avail-table td {
-      padding: 12px;
-      border-bottom: 1px solid var(--border);
-      text-align: center;
-      font-size: 13px;
-    }
-
-    .avail-table th:first-child,
-    .avail-table td:first-child {
-      text-align: left;
-    }
-
-    .room-name {
-      font-weight: 600;
-    }
-
-    .slot {
-      padding: 6px 10px;
-      border-radius: 8px;
-      font-size: 11px;
-      font-weight: 600;
-      display: inline-block;
-      min-width: 92px;
-    }
-
-    .slot.libre {
-      background: var(--green-bg);
-      color: var(--green);
-      border: 1px solid #B7E4C4;
-    }
-
-    .slot.mia {
-      background: var(--uc-gold-light);
-      color: var(--gold-text);
-      border: 1px solid var(--uc-gold);
-    }
-
-    .slot.ocupado {
-      background: var(--gray-bg);
-      color: var(--gray-text);
-      border: 1px solid var(--gray-border);
-    }
-
-    .legend {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-      padding: 14px 20px 18px;
-    }
-
-    .legend-item {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 12px;
-      color: var(--muted);
-    }
-
-    .legend-badge {
-      width: 14px;
-      height: 14px;
-      border-radius: 999px;
-      border: 1px solid transparent;
-    }
-
-    .legend-badge.libre {
-      background: var(--green-bg);
-      border-color: #B7E4C4;
-    }
-
-    .legend-badge.mia {
-      background: var(--uc-gold-light);
-      border-color: var(--uc-gold);
-    }
-
-    .legend-badge.ocupado {
-      background: var(--gray-bg);
-      border-color: var(--gray-border);
-    }
-
-    .form-wrap {
-      padding: 20px;
-    }
-
-    .form-wrap label {
-      display: block;
-      font-size: 13px;
-      font-weight: 600;
-      margin-bottom: 6px;
-    }
-
-    .f-select {
-      width: 100%;
-      padding: 10px;
-      margin-bottom: 15px;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-      background: white;
-    }
-
-    .btn-book {
-      width: 100%;
-      background: var(--uc-blue);
-      color: white;
-      border: none;
-      padding: 12px;
-      border-radius: 8px;
-      font-weight: 700;
-      cursor: pointer;
-    }
-
-    .reservation-item {
-      padding: 16px 18px;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .reservation-item:last-child {
-      border-bottom: none;
-    }
-
-    .reservation-top {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 10px;
-      margin-bottom: 10px;
-    }
-
-    .reservation-title {
-      font-weight: 700;
-      font-size: 14px;
-      margin-bottom: 4px;
-    }
-
-    .reservation-sub {
-      font-size: 12px;
-      color: var(--muted);
-    }
-
-    .reservation-status {
-      font-size: 11px;
-      padding: 5px 9px;
-      border-radius: 999px;
-      background: var(--uc-gold-light);
-      color: var(--gold-text);
-      border: 1px solid var(--uc-gold);
-      white-space: nowrap;
-    }
-
-    .inline-form {
-      margin: 0;
-    }
-
-    .btn-cancel {
-      width: 100%;
-      background: transparent;
-      color: var(--red);
-      border: 1px solid var(--red);
-      padding: 10px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: 600;
-    }
-
-    .empty-state {
-      padding: 18px 20px;
-      color: var(--muted);
-      font-size: 13px;
-    }
-
-    @media (max-width: 1100px) {
-      .stats {
-        grid-template-columns: repeat(2, 1fr);
-      }
-
-      .grid {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    @media (max-width: 760px) {
-      .sidebar {
-        display: none;
-      }
-
-      .topnav {
-        padding: 0 16px;
-      }
-
-      .main {
-        padding: 20px 16px;
-      }
-
-      .stats {
-        grid-template-columns: 1fr;
-      }
-
-      .page-header {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-
-      .slot {
-        min-width: 78px;
-        font-size: 10px;
-      }
-    }
-  </style>
 </head>
 <body>
 
-  <nav class="topnav">
-    <div class="nav-left">
-      <img src="/static/img/logo_ucatolica.png" alt="Logo Universidad Católica" class="brand-logo">
-      <div class="nav-brand-text">
-        <div class="app-name">Uni<span>Space</span></div>
-        <div class="uni-name">Universidad Católica de Colombia</div>
-      </div>
-    </div>
+<h2>Calendario de Salas</h2>
 
-    <div class="nav-right">
-      <div class="user-chip">
-        <div class="user-avatar">{{ (usuario[:1] if usuario else "U")|upper }}</div>
-        <span class="user-label">{{ usuario if usuario else "Usuario" }}</span>
-      </div>
-    </div>
-  </nav>
+<table class="table" border="1">
+    <tr>
+        <th>Sala</th>
+        {% for hora in horas %}
+        <th>{{ hora }}</th>
+        {% endfor %}
+    </tr>
 
-  <div class="app-body">
-    <aside class="sidebar">
-      <div class="sidebar-title">Principal</div>
-      <nav class="sidebar-menu">
-        <a href="/dashboard?usuario={{ usuario }}" class="menu-item active">🏛 Salas</a>
-        <a href="/dashboard?usuario={{ usuario }}" class="menu-item">📅 Reservas</a>
-        <a href="/dashboard?usuario={{ usuario }}" class="menu-item">🕘 Historial</a>
-      </nav>
-    </aside>
+    {% for sala in salas %}
+    <tr>
+        <td>{{ sala }}</td>
 
-    <main class="main">
-      {% if mensaje %}
-        <div class="action-msg">{{ mensaje }}</div>
-      {% endif %}
+        {% for hora in horas %}
+        <td>
+            {% set estado = reservas[sala][hora] %}
 
-      <div class="page-header">
-        <div class="page-title">
-          <h1>Calendario de Salas</h1>
-          <p>Disponibilidad en tiempo real · Hoy</p>
-        </div>
-        <div class="mini-date">
-          <div class="d1">Sistema activo</div>
-          <div class="d2">UniSpace</div>
-        </div>
-      </div>
+            {% if estado == "Libre" %}
+                <span class="slot libre">Libre</span>
 
-      <div class="stats">
-        <div class="stat">
-          <div class="stat-val">{{ total_salas }}</div>
-          <div class="stat-lbl">Salas totales</div>
-        </div>
-        <div class="stat">
-          <div class="stat-val">{{ horarios_libres }}</div>
-          <div class="stat-lbl">Horarios libres</div>
-        </div>
-        <div class="stat">
-          <div class="stat-val">{{ horarios_ocupados }}</div>
-          <div class="stat-lbl">Horarios ocupados</div>
-        </div>
-        <div class="stat">
-          <div class="stat-val">{{ mis_reservas }}</div>
-          <div class="stat-lbl">Mis reservas</div>
-        </div>
-      </div>
+            {% elif estado == usuario %}
+                <span class="slot mia">Mi reserva</span>
 
-      <div class="grid">
-        <div class="card">
-          <div class="card-head">Disponibilidad por hora</div>
-          <table class="avail-table">
-            <thead>
-              <tr>
-                <th>Sala</th>
-                {% for hora in horas %}
-                  <th>{{ hora }}</th>
-                {% endfor %}
-              </tr>
-            </thead>
-            <tbody>
-              {% for sala in salas %}
-              <tr>
-                <td class="room-name">{{ sala }}</td>
-                {% for hora in horas %}
-                <td>
-                  {% set estado = reservas[sala][hora] %}
-                  {% if estado == "Libre" %}
-                    <span class="slot libre">Libre</span>
-                  {% elif estado == usuario %}
-                    <span class="slot mia">Mi reserva</span>
-                  {% else %}
-                    <span class="slot ocupado">Ocupado</span>
-                  {% endif %}
-                </td>
-                {% endfor %}
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-          <div class="legend">
-            <span class="legend-item"><span class="legend-badge libre"></span> Libre</span>
-            <span class="legend-item"><span class="legend-badge mia"></span> Mi reserva</span>
-            <span class="legend-item"><span class="legend-badge ocupado"></span> Ocupado</span>
-          </div>
-        </div>
-
-        <div class="right">
-          <div class="card">
-            <div class="card-head">Nueva Reserva</div>
-            <div class="form-wrap">
-              <form action="/reservar" method="post">
-                <input type="hidden" name="usuario" value="{{ usuario }}">
-
-                <label for="sala">Sala</label>
-                <select id="sala" name="sala" class="f-select" required>
-                  <option value="" disabled selected>Selecciona una sala...</option>
-                  {% for sala in salas %}
-                    <option value="{{ sala }}">{{ sala }}</option>
-                  {% endfor %}
-                </select>
-
-                <label for="hora">Hora</label>
-                <select id="hora" name="hora" class="f-select" required>
-                  <option value="" disabled selected>Selecciona un horario...</option>
-                  {% for hora in horas %}
-                    <option value="{{ hora }}">{{ hora }}</option>
-                  {% endfor %}
-                </select>
-
-                <button type="submit" class="btn-book">Confirmar reserva</button>
-              </form>
-            </div>
-          </div>
-
-          <div class="card">
-            <div class="card-head">Mis reservas activas</div>
-            {% if historial_reciente %}
-              {% for item in historial_reciente %}
-              <div class="reservation-item">
-                <div class="reservation-top">
-                  <div>
-                    <div class="reservation-title">{{ item.sala }} - {{ item.hora }}</div>
-                    <div class="reservation-sub">Reservada por ti</div>
-                  </div>
-                  <span class="reservation-status">Activa</span>
-                </div>
-
-                <form action="/cancelar" method="post" class="inline-form">
-                  <input type="hidden" name="usuario" value="{{ usuario }}">
-                  <input type="hidden" name="sala" value="{{ item.sala }}">
-                  <input type="hidden" name="hora" value="{{ item.hora }}">
-                  <button type="submit" class="btn-cancel">Cancelar reserva</button>
-                </form>
-              </div>
-              {% endfor %}
             {% else %}
-              <div class="empty-state">Aún no tienes reservas activas.</div>
+                <span class="slot ocupado">Ocupado</span>
             {% endif %}
-          </div>
+
+        </td>
+        {% endfor %}
+    </tr>
+    {% endfor %}
+</table>
+
+<!-- 🔹 Leyenda -->
+<div class="legend">
+    <span class="libre">● Libre</span>
+    <span class="mia">● Mi reserva</span>
+    <span class="ocupado">● Ocupado</span>
+</div>
+
+<hr>
+
+<!-- 🔹 Mis reservas -->
+<h3>Mis reservas activas</h3>
+
+{% if historial_reciente %}
+    {% for item in historial_reciente %}
+        <div>
+            {{ item.sala }} - {{ item.hora }}
+            <form action="/cancelar" method="post">
+                <input type="hidden" name="usuario" value="{{ usuario }}">
+                <input type="hidden" name="sala" value="{{ item.sala }}">
+                <input type="hidden" name="hora" value="{{ item.hora }}">
+                <button class="cancel-btn">Cancelar reserva</button>
+            </form>
         </div>
-      </div>
-    </main>
-  </div>
+    {% endfor %}
+{% else %}
+    <p>No tienes reservas</p>
+{% endif %}
+
 </body>
 </html>
