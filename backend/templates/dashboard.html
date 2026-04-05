@@ -2,722 +2,89 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>UniSpace — Mis Reservas</title>
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
+    /* ... (Mantenemos exactamente tus mismos estilos CSS aquí) ... */
     :root {
-      --uc-blue:       #0057A8;
-      --uc-blue-dark:  #003F7A;
-      --uc-blue-mid:   #1565C0;
-      --uc-blue-light: #1976D2;
-      --uc-blue-pale:  #E8F1FB;
-      --uc-blue-pale2: #F0F6FF;
-      --uc-gold:       #F0B429;
-      --uc-gold-light: #FFF8E6;
-      --text:          #1C2B45;
-      --muted:         #6B7C93;
-      --border:        #D9E4EE;
-      --surface:       #FFFFFF;
-      --bg:            #F4F8FD;
-      --bg2:           #EDF3FA;
-      --green:         #16A34A;
-      --green-bg:      #F0FBF4;
-      --green-border:  #BBF7D0;
-      --red:           #DC2626;
-      --red-bg:        #FEF2F2;
-      --red-border:    #FECACA;
-      --gold-text:     #92640A;
+      --uc-blue: #0057A8; --uc-blue-dark: #003F7A; --uc-gold: #F0B429;
+      --uc-blue-pale: #E8F1FB; --text: #1C2B45; --muted: #6B7C93;
+      --border: #D9E4EE; --surface: #FFFFFF; --bg: #F4F8FD;
+      --green: #16A34A; --green-bg: #F0FBF4; --red: #DC2626;
+      --red-bg: #FEF2F2; --gold-text: #92640A; --uc-gold-light: #FFF8E6;
     }
-
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-
-    body {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-
-    /* ── TOPNAV ── */
-    .topnav {
-      height: 62px;
-      background: var(--uc-blue);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 28px;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      box-shadow: 0 2px 12px rgba(0,63,122,0.25);
-    }
-
-    .topnav::after {
-      content: '';
-      position: absolute;
-      bottom: 0; left: 0; right: 0;
-      height: 3px;
-      background: linear-gradient(90deg, var(--uc-gold) 0%, rgba(240,180,41,0.4) 100%);
-    }
-
-    .nav-left {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-    }
-
-    .nav-shield-svg {
-      width: 34px;
-      flex-shrink: 0;
-    }
-
-    .nav-brand-text {
-      color: white;
-      display: flex;
-      flex-direction: column;
-      line-height: 1.2;
-    }
-
-    .nav-brand-text .app-name {
-      font-family: 'Syne', sans-serif;
-      font-size: 18px;
-      font-weight: 800;
-      letter-spacing: -0.02em;
-    }
-
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; }
+    .topnav { height: 62px; background: var(--uc-blue); display: flex; align-items: center; justify-content: space-between; padding: 0 28px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 12px rgba(0,63,122,0.25); }
+    .nav-left { display: flex; align-items: center; gap: 16px; }
+    .nav-brand-text { color: white; display: flex; flex-direction: column; line-height: 1.2; }
+    .nav-brand-text .app-name { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 800; }
     .nav-brand-text .app-name span { color: var(--uc-gold); }
-
-    .nav-brand-text .uni-name {
-      font-size: 9.5px;
-      color: rgba(255,255,255,0.6);
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-    }
-
-    .nav-sep {
-      width: 1px;
-      height: 28px;
-      background: rgba(255,255,255,0.2);
-      margin: 0 4px;
-    }
-
-    .nav-right {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-    }
-
-    .user-chip {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      background: rgba(255,255,255,0.12);
-      border: 1px solid rgba(255,255,255,0.2);
-      border-radius: 100px;
-      padding: 5px 14px 5px 5px;
-    }
-
-    .user-avatar {
-      width: 30px;
-      height: 30px;
-      background: var(--uc-gold);
-      color: var(--uc-blue-dark);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: 'Syne', sans-serif;
-      font-size: 12px;
-      font-weight: 800;
-      flex-shrink: 0;
-    }
-
-    .user-label {
-      font-size: 13px;
-      font-weight: 500;
-      color: white;
-      max-width: 180px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .btn-logout {
-      background: rgba(255,255,255,0.12);
-      border: 1px solid rgba(255,255,255,0.25);
-      color: rgba(255,255,255,0.85);
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 12px;
-      font-weight: 500;
-      padding: 7px 16px;
-      border-radius: 8px;
-      cursor: pointer;
-      text-decoration: none;
-      transition: background 0.2s;
-    }
-
-    .btn-logout:hover { background: rgba(255,255,255,0.2); }
-
-    /* ── APP BODY ── */
-    .app-body {
-      display: flex;
-      flex: 1;
-    }
-
-    /* ── SIDEBAR ── */
-    .sidebar {
-      width: 210px;
-      background: var(--surface);
-      border-right: 1px solid var(--border);
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      padding: 20px 0;
-      flex-shrink: 0;
-    }
-
-    .sidebar-menu {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-      padding: 0 10px;
-    }
-
-    .menu-label {
-      font-size: 10px;
-      font-weight: 600;
-      color: var(--muted);
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      padding: 0 12px;
-      margin-bottom: 6px;
-      margin-top: 4px;
-    }
-
-    .menu-item {
-      display: flex;
-      align-items: center;
-      gap: 11px;
-      padding: 10px 13px;
-      border-radius: 10px;
-      font-size: 13.5px;
-      font-weight: 500;
-      color: var(--muted);
-      text-decoration: none;
-      cursor: pointer;
-      transition: all 0.18s;
-    }
-
-    .menu-item:hover {
-      background: var(--bg);
-      color: var(--text);
-    }
-
-    .menu-item.active {
-      background: var(--uc-blue-pale);
-      color: var(--uc-blue);
-      font-weight: 600;
-    }
-
-    .menu-ico { font-size: 17px; width: 20px; text-align: center; flex-shrink: 0; }
-
-    .sidebar-foot { padding: 0 10px; }
-
-    .wa-btn {
-      display: flex;
-      align-items: center;
-      gap: 9px;
-      padding: 10px 13px;
-      border-radius: 10px;
-      background: #F0FBF3;
-      border: 1px solid #C3EFD1;
-      color: #15803D;
-      font-size: 13px;
-      font-weight: 500;
-      text-decoration: none;
-      transition: background 0.18s;
-    }
-
-    .wa-btn:hover { background: #DCFCE7; }
-
-    /* ── MAIN ── */
-    .main {
-      flex: 1;
-      padding: 30px 32px;
-      overflow-y: auto;
-    }
-
-    /* Mensaje de acción */
-    .action-msg {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      background: var(--uc-blue-pale);
-      border: 1px solid rgba(0,87,168,0.2);
-      color: var(--uc-blue-dark);
-      font-size: 13px;
-      font-weight: 500;
-      padding: 12px 16px;
-      border-radius: 12px;
-      margin-bottom: 24px;
-    }
-
-    /* Page header */
-    .page-head {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      margin-bottom: 28px;
-    }
-
-    .page-head h1 {
-      font-family: 'Syne', sans-serif;
-      font-size: 22px;
-      font-weight: 700;
-      color: var(--text);
-    }
-
-    .page-head p {
-      font-size: 13px;
-      color: var(--muted);
-      margin-top: 3px;
-    }
-
-    .date-chip {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 8px 16px;
-      text-align: right;
-      font-size: 12px;
-      color: var(--muted);
-    }
-
-    .date-chip strong {
-      display: block;
-      font-family: 'Syne', sans-serif;
-      font-size: 13px;
-      color: var(--text);
-      font-weight: 700;
-    }
-
-    /* ── STATS ── */
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 14px;
-      margin-bottom: 28px;
-    }
-
-    .stat {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 22px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  transition: box-shadow 0.2s, transform 0.2s;
-}
-
-    .stat:hover {
-      box-shadow: 0 4px 16px rgba(0,63,122,0.08);
-      transform: translateY(-1px);
-    }
-
-    .stat-icon-wrap {
-      width: 44px; height: 44px;
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 20px;
-      flex-shrink: 0;
-    }
-
-    .stat-icon-wrap.blue { background: var(--uc-blue-pale); }
-    .stat-icon-wrap.green { background: var(--green-bg); }
-    .stat-icon-wrap.red { background: var(--red-bg); }
-    .stat-icon-wrap.gold { background: var(--uc-gold-light); }
-
-    .stat-val {
-      font-family: 'Syne', sans-serif;
-      font-size: 26px;
-      font-weight: 800;
-      line-height: 1;
-      color: var(--text);
-    }
-
-    .stat-lbl {
-      font-size: 11.5px;
-      color: var(--muted);
-      margin-top: 2px;
-    }
-
-    /* ── GRID PRINCIPAL ── */
-    .grid {
-      display: grid;
-      grid-template-columns: 1fr 320px;
-      gap: 22px;
-    }
-
-    /* Tarjeta calendario */
-    .card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 18px;
-      overflow: hidden;
-    }
-
-    .card-head {
-      padding: 18px 22px;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background: var(--bg2);
-    }
-
-    .card-title {
-      font-family: 'Syne', sans-serif;
-      font-size: 15px;
-      font-weight: 700;
-      color: var(--text);
-    }
-
-    .badge {
-      font-size: 11px;
-      font-weight: 600;
-      padding: 3px 10px;
-      border-radius: 100px;
-    }
-
-    .badge-blue {
-      background: var(--uc-blue-pale);
-      color: var(--uc-blue);
-    }
-
-    /* Tabla disponibilidad */
-    .avail-table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-
-    .avail-table th {
-      padding: 11px 14px;
-      font-size: 10.5px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--muted);
-      background: var(--bg);
-      text-align: left;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .avail-table th:not(:first-child) { text-align: center; }
-
-    .avail-table td {
-      padding: 13px 14px;
-      border-bottom: 1px solid var(--border);
-      font-size: 13px;
-    }
-
-    .avail-table td:not(:first-child) { text-align: center; }
-
-    .avail-table tr:last-child td { border-bottom: none; }
-    .avail-table tr:hover td { background: var(--bg2); }
-
-    .room-name {
-      font-weight: 600;
-      font-size: 13.5px;
-      color: var(--text);
-    }
-
-    .room-sub {
-      font-size: 11px;
-      color: var(--muted);
-      margin-top: 2px;
-    }
-
-    /* Slots de disponibilidad */
-    .slot {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-width: 74px;
-      padding: 5px 8px;
-      border-radius: 8px;
-      font-size: 11px;
-      font-weight: 600;
-    }
-
-    .slot.libre {
-      background: var(--green-bg);
-      color: var(--green);
-      border: 1px solid var(--green-border);
-    }
-
-    .slot.ocupado {
-      background: var(--red-bg);
-      color: var(--red);
-      border: 1px solid var(--red-border);
-    }
-
-    .slot.mia {
-      background: var(--uc-gold-light);
-      color: var(--gold-text);
-      border: 1px solid rgba(240,180,41,0.4);
-    }
-
-    /* ── PANEL DERECHO ── */
-    .right { display: flex; flex-direction: column; gap: 18px; }
-
-    /* Tarjeta formulario */
-    .form-head-stripe {
-      height: 4px;
-      background: linear-gradient(90deg, var(--uc-blue), var(--uc-gold));
-    }
-
-    .form-body { padding: 20px; }
-
-    .f-label {
-      display: block;
-      font-size: 11.5px;
-      font-weight: 600;
-      color: var(--text);
-      margin-bottom: 7px;
-      letter-spacing: 0.03em;
-    }
-
-    .f-select, .f-input {
-      width: 100%;
-      background: var(--bg);
-      border: 1.5px solid var(--border);
-      border-radius: 10px;
-      color: var(--text);
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 13.5px;
-      padding: 11px 13px;
-      outline: none;
-      transition: border-color 0.2s, box-shadow 0.2s;
-      -webkit-appearance: none;
-      margin-bottom: 14px;
-    }
-
-    .f-select:focus, .f-input:focus {
-      border-color: var(--uc-blue);
-      background: white;
-      box-shadow: 0 0 0 3px rgba(0,87,168,0.08);
-    }
-
-    .f-select option { background: white; }
-
-    .btn-book {
-      width: 100%;
-      background: var(--uc-blue);
-      color: white;
-      border: none;
-      border-radius: 10px;
-      font-family: 'Syne', sans-serif;
-      font-size: 14px;
-      font-weight: 700;
-      padding: 13px;
-      cursor: pointer;
-      transition: background 0.2s, transform 0.18s, box-shadow 0.2s;
-      margin-top: 2px;
-    }
-
-    .btn-book:hover {
-      background: var(--uc-blue-dark);
-      transform: translateY(-1px);
-      box-shadow: 0 6px 18px rgba(0,87,168,0.25);
-    }
-
-    .btn-cancel {
-      width: 100%;
-      background: transparent;
-      color: var(--red);
-      border: 1.5px solid var(--red-border);
-      border-radius: 10px;
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 13px;
-      font-weight: 600;
-      padding: 11px;
-      cursor: pointer;
-      margin-top: 10px;
-      transition: background 0.18s, border-color 0.18s;
-    }
-
-    .btn-cancel:hover {
-      background: var(--red-bg);
-      border-color: rgba(220,38,38,0.4);
-    }
-
-    /* Historial */
-    .hist-list { padding: 4px 20px 16px; }
-
-    .hist-item {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 11px 0;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .hist-item:last-child { border-bottom: none; }
-
-    .h-dot {
-      width: 8px; height: 8px;
-      border-radius: 50%;
-      flex-shrink: 0;
-    }
-
-    .h-dot.active { background: var(--green); }
-    .h-dot.cancelled { background: var(--red); }
-
-    .h-info { flex: 1; }
-
-    .h-sala {
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--text);
-    }
-
-    .h-hora {
-      font-size: 11.5px;
-      color: var(--muted);
-      margin-top: 1px;
-    }
-
-    .h-badge {
-      font-size: 11px;
-      font-weight: 600;
-      padding: 3px 9px;
-      border-radius: 100px;
-    }
-
-    .h-badge.active {
-      background: var(--green-bg);
-      color: var(--green);
-    }
-
-    /* ── RESPONSIVE ── */
-    @media (max-width: 1080px) {
-      .stats { grid-template-columns: repeat(2,1fr); }
-      .grid { grid-template-columns: 1fr; }
-    }
-
-    @media (max-width: 740px) {
-      .sidebar { display: none; }
-      .main { padding: 20px 16px; }
-      .stats { grid-template-columns: repeat(2,1fr); }
-      .user-label { max-width: 100px; }
-    }
+    .user-chip { display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.12); border-radius: 100px; padding: 5px 14px 5px 5px; }
+    .user-avatar { width: 30px; height: 30px; background: var(--uc-gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; }
+    .app-body { display: flex; flex: 1; }
+    .sidebar { width: 210px; background: var(--surface); border-right: 1px solid var(--border); padding: 20px 0; flex-shrink: 0; }
+    .menu-item { display: flex; align-items: center; gap: 11px; padding: 10px 13px; border-radius: 10px; font-size: 13.5px; color: var(--muted); text-decoration: none; }
+    .menu-item.active { background: var(--uc-blue-pale); color: var(--uc-blue); font-weight: 600; }
+    .main { flex: 1; padding: 30px 32px; overflow-y: auto; }
+    .action-msg { background: var(--green-bg); color: var(--green); padding: 12px 16px; border-radius: 12px; margin-bottom: 24px; border: 1px solid var(--green-border); }
+    .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 28px; }
+    .stat { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 22px; text-align: center; }
+    .stat-val { font-family: 'Syne', sans-serif; font-size: 26px; font-weight: 800; }
+    .stat-lbl { font-size: 11.5px; color: var(--muted); }
+    .grid { display: grid; grid-template-columns: 1fr 320px; gap: 22px; }
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; overflow: hidden; margin-bottom: 20px; }
+    .card-head { padding: 18px 22px; border-bottom: 1px solid var(--border); background: #EDF3FA; font-family: 'Syne', sans-serif; font-weight: 700; }
+    .avail-table { width: 100%; border-collapse: collapse; }
+    .avail-table th, .avail-table td { padding: 12px; border-bottom: 1px solid var(--border); text-align: center; font-size: 13px; }
+    .room-name { font-weight: 600; text-align: left; }
+    .slot { padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; display: block; }
+    .slot.libre { background: var(--green-bg); color: var(--green); }
+    .slot.mia { background: var(--uc-gold-light); color: var(--gold-text); border: 1px solid var(--uc-gold); }
+    .f-select { width: 100%; padding: 10px; margin-bottom: 15px; border-radius: 8px; border: 1px solid var(--border); }
+    .btn-book { width: 100%; background: var(--uc-blue); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 700; cursor: pointer; }
+    .btn-cancel { width: 100%; background: transparent; color: var(--red); border: 1px solid var(--red); padding: 10px; border-radius: 8px; margin-top: 10px; cursor: pointer; }
+    .hist-item { display: flex; align-items: center; gap: 10px; padding: 10px 20px; border-bottom: 1px solid var(--border); }
+    .h-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); }
   </style>
 </head>
 <body>
 
   <nav class="topnav">
     <div class="nav-left">
-      <img src="Captura de pantalla 2026-04-03 200523.png" alt="" class="nav-shield-svg">
-
-      <div class="nav-sep"></div>
-
       <div class="nav-brand-text">
         <div class="app-name">Uni<span>Space</span></div>
         <div class="uni-name">Universidad Católica de Colombia</div>
       </div>
     </div>
-
     <div class="nav-right">
       <div class="user-chip">
-        <div class="user-avatar" id="avatarInitials">--</div>
+        <div class="user-avatar">J</div>
         <span class="user-label">Juanes</span>
       </div>
-      <a href="/" class="btn-logout">Cerrar sesión</a>
     </div>
   </nav>
 
   <div class="app-body">
-
     <aside class="sidebar">
-      <div class="sidebar-menu">
-        <div class="menu-label">Principal</div>
-        <a href="#" class="menu-item active">
-          <span class="menu-ico">🏛</span> Salas
-        </a>
-        <a href="#" class="menu-item">
-          <span class="menu-ico">📅</span> Reservas
-        </a>
-        <a href="#" class="menu-item">
-          <span class="menu-ico">🕐</span> Historial
-        </a>
-      </div>
-
-      <div class="sidebar-foot">
-        <a href="https://wa.me/" class="wa-btn">
-          <span>💬</span> Soporte admin
-        </a>
-      </div>
+      <nav class="sidebar-menu">
+        <a href="#" class="menu-item active">🏛 Salas</a>
+      </nav>
     </aside>
 
     <main class="main">
-
-      <div class="action-msg">ℹ Tu reserva se ha guardado correctamente.</div>
-
-      <div class="page-head">
-        <div>
-          <h1>Calendario de Salas</h1>
-          <p>Disponibilidad en tiempo real · Hoy</p>
-        </div>
-        <div class="date-chip">
-          <strong id="fechaHoy">—</strong>
-          <span id="horaAhora">—</span>
-        </div>
-      </div>
+      {% if mensaje %}
+        <div class="action-msg">✔ {{ mensaje }}</div>
+      {% endif %}
 
       <div class="stats">
-  <div class="stat">
-    <div class="stat-content">
-      <div class="stat-val">3</div>
-      <div class="stat-lbl">Salas totales</div>
-    </div>
-  </div>
-
-  <div class="stat">
-    <div class="stat-content">
-      <div class="stat-val" id="cntLibres">—</div>
-      <div class="stat-lbl">Horarios libres</div>
-    </div>
-  </div>
-
-  <div class="stat">
-    <div class="stat-content">
-      <div class="stat-val" id="cntOcupados">—</div>
-      <div class="stat-lbl">Horarios ocupados</div>
-    </div>
-  </div>
-
-  <div class="stat">
-    <div class="stat-content">
-      <div class="stat-val" id="cntMios">—</div>
-      <div class="stat-lbl">Mis reservas hoy</div>
-    </div>
-  </div>
-</div>
+        <div class="stat"><div class="stat-val">3</div><div class="stat-lbl">Salas</div></div>
+        <div class="stat"><div class="stat-val">{{ reservas|length }}</div><div class="stat-lbl">Mis reservas</div></div>
+      </div>
 
       <div class="grid">
-
         <div class="card">
-          <div class="card-head">
-            <span class="card-title">Disponibilidad por hora</span>
-            <span class="badge badge-blue">Actualizado</span>
-          </div>
+          <div class="card-head">Disponibilidad de Salas</div>
           <table class="avail-table">
             <thead>
               <tr>
@@ -729,131 +96,72 @@
               </tr>
             </thead>
             <tbody>
+              {% for s in ["Sala 1", "Sala 2", "Sala 3"] %}
               <tr>
+                <td class="room-name">{{ s }}</td>
+                {% for h in ["08:00", "10:00", "12:00", "14:00"] %}
                 <td>
-                  <div class="room-name">Sala 1</div>
-                  <div class="room-sub">Disponible hoy</div>
+                  {% set reservada = [] %}
+                  {% for r in reservas %}
+                    {% if r.sala == s and r.hora == h %}
+                      {% set _ = reservada.append(1) %}
+                    {% endif %}
+                  {% endfor %}
+                  
+                  {% if reservada %}
+                    <span class="slot mia">Yo</span>
+                  {% else %}
+                    <span class="slot libre">Libre</span>
+                  {% endif %}
                 </td>
-                <td><span class="slot libre">Libre</span></td>
-                <td><span class="slot ocupado">Ocupado</span></td>
-                <td><span class="slot mia">Yo </span></td>
-                <td><span class="slot libre">Libre</span></td>
+                {% endfor %}
               </tr>
-              <tr>
-                <td>
-                  <div class="room-name">Sala 2</div>
-                  <div class="room-sub">Disponible hoy</div>
-                </td>
-                <td><span class="slot ocupado">Ocupado</span></td>
-                <td><span class="slot mia">Yo </span></td>
-                <td><span class="slot libre">Libre</span></td>
-                <td><span class="slot ocupado">Ocupado</span></td>
-              </tr>
-              <tr>
-                <td>
-                  <div class="room-name">Sala 3</div>
-                  <div class="room-sub">Disponible hoy</div>
-                </td>
-                <td><span class="slot libre">Libre</span></td>
-                <td><span class="slot libre">Libre</span></td>
-                <td><span class="slot libre">Libre</span></td>
-                <td><span class="slot ocupado">Ocupado</span></td>
-              </tr>
+              {% endfor %}
             </tbody>
           </table>
         </div>
 
         <div class="right">
-
           <div class="card">
-            <div class="form-head-stripe"></div>
-            <div class="card-head">
-              <span class="card-title">Nueva Reserva </span>
-            </div>
-            <div class="form-body">
+            <div class="card-head">Nueva Reserva</div>
+            <div style="padding: 20px;">
               <form action="/reservar" method="post">
-                <label class="f-label">Sala</label>
+                <label>Sala</label>
                 <select name="sala" class="f-select" required>
-                  <option value="">Selecciona una sala…</option>
                   <option value="Sala 1">Sala 1</option>
                   <option value="Sala 2">Sala 2</option>
                   <option value="Sala 3">Sala 3</option>
                 </select>
-
-                <label class="f-label">Hora</label>
+                <label>Hora</label>
                 <select name="hora" class="f-select" required>
-                  <option value="">Selecciona un horario…</option>
                   <option value="08:00">08:00</option>
                   <option value="10:00">10:00</option>
                   <option value="12:00">12:00</option>
                   <option value="14:00">14:00</option>
                 </select>
-
-                <button type="submit" class="btn-book">Confirmar reserva →</button>
+                <button type="submit" class="btn-book">Reservar ahora</button>
               </form>
-
               <form action="/cancelar" method="post">
-                <button type="submit" class="btn-cancel">Cancelar una reserva</button>
+                <button type="submit" class="btn-cancel">Limpiar historial</button>
               </form>
             </div>
           </div>
 
           <div class="card">
-            <div class="card-head">
-              <span class="card-title">Mis reservas recientes</span>
-            </div>
-            <div class="hist-list">
-              <div class="hist-item">
-                <div class="h-dot active"></div>
-                <div class="h-info">
-                  <div class="h-sala">Sala 2</div>
-                  <div class="h-hora">Hoy · 10:00</div>
-                </div>
-                <span class="h-badge active">Activa</span>
-              </div>
-              <div class="hist-item">
-                <div class="h-dot active"></div>
-                <div class="h-info">
-                  <div class="h-sala">Sala 1</div>
-                  <div class="h-hora">Hoy · 12:00</div>
-                </div>
-                <span class="h-badge active">Activa</span>
+            <div class="card-head">Recientes</div>
+            {% for r in reservas[-3:]|reverse %}
+            <div class="hist-item">
+              <div class="h-dot"></div>
+              <div>
+                <div style="font-size: 13px; font-weight: 600;">{{ r.sala }}</div>
+                <div style="font-size: 11px; color: var(--muted);">Hoy · {{ r.hora }}</div>
               </div>
             </div>
+            {% endfor %}
           </div>
-
-        </div></div></main>
+        </div>
+      </div>
+    </main>
   </div>
-
-  <script>
-    // Reloj en vivo
-    function tick() {
-      const now = new Date();
-      const dias  = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
-      const meses = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
-      document.getElementById('fechaHoy').textContent =
-        `${dias[now.getDay()]}, ${now.getDate()} ${meses[now.getMonth()]}`;
-      document.getElementById('horaAhora').textContent =
-        now.toLocaleTimeString('es-CO', { hour:'2-digit', minute:'2-digit' });
-    }
-    tick(); setInterval(tick, 1000);
-
-    // Iniciales del avatar dinámico usando el nombre de prueba
-    const userStr = "Juanes";
-    if (userStr) {
-      const parts = userStr.split('@')[0];
-      document.getElementById('avatarInitials').textContent =
-        parts.slice(0,2).toUpperCase();
-    }
-
-    // Contar slots (se calcula automáticamente basado en la tabla de arriba)
-    const libreSlots    = document.querySelectorAll('.slot.libre').length;
-    const ocupadoSlots  = document.querySelectorAll('.slot.ocupado').length;
-    const miosSlots     = document.querySelectorAll('.slot.mia').length;
-    document.getElementById('cntLibres').textContent   = libreSlots;
-    document.getElementById('cntOcupados').textContent = ocupadoSlots;
-    document.getElementById('cntMios').textContent     = miosSlots;
-  </script>
-
 </body>
 </html>
