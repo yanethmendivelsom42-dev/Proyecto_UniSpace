@@ -1,9 +1,11 @@
 from pathlib import Path
+
 from fastapi.templating import Jinja2Templates
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 TEMPLATES_DIR = BASE_DIR / "templates"
+STATIC_DIR = BASE_DIR / "static"
 USUARIOS_FILE = BASE_DIR / "usuarios.txt"
 RESERVAS_FILE = BASE_DIR / "reservas.json"
 
