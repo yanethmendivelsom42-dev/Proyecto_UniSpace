@@ -3,7 +3,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 
 from controllers.auth_controller import validar_usuario
 from controllers.reserva_archivo_controller import (
-    cancelar_reservas_usuario,
+    cancelar_reserva_individual,
     construir_historial_usuario,
     obtener_reservas_dashboard,
     reservar_sala,
@@ -76,7 +76,7 @@ def dashboard(request: Request, usuario: str = "", mensaje: str = ""):
             "horas": HORAS,
             "usuario": usuario,
             "mensaje": mensaje,
-            "historial_reciente": historial_reciente[-3:][::-1],
+            "historial_reciente": historial_reciente,
             "total_salas": total_salas,
             "horarios_libres": libres,
             "horarios_ocupados": ocupados,
@@ -101,8 +101,12 @@ def reservar(
 
 
 @router.post("/cancelar")
-def cancelar(usuario: str = Form(...)):
-    resultado = cancelar_reservas_usuario(usuario)
+def cancelar(
+    usuario: str = Form(...),
+    sala: str = Form(...),
+    hora: str = Form(...)
+):
+    resultado = cancelar_reserva_individual(usuario, sala, hora)
 
     return RedirectResponse(
         url=f"/dashboard?usuario={usuario}&mensaje={resultado['mensaje']}",

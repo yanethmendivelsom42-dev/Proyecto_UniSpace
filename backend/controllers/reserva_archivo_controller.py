@@ -21,6 +21,20 @@ def inicializar_reservas() -> None:
 
         if not isinstance(datos, dict):
             guardar_reservas(_estructura_base())
+            return
+
+        estructura_valida = True
+        for sala in SALAS_BASE:
+            if sala not in datos or not isinstance(datos[sala], dict):
+                estructura_valida = False
+                break
+            for hora in HORAS:
+                if hora not in datos[sala]:
+                    estructura_valida = False
+                    break
+
+        if not estructura_valida:
+            guardar_reservas(_estructura_base())
     except (json.JSONDecodeError, OSError):
         guardar_reservas(_estructura_base())
 
@@ -55,25 +69,30 @@ def reservar_sala(sala: str, hora: str, usuario: str) -> dict:
     reservas[sala][hora] = usuario
     guardar_reservas(reservas)
 
-    return {"ok": True, "mensaje": "Tu reserva se ha guardado correctamente."}
+    return {"ok": True, "mensaje": f"Tu reserva para {sala} a las {hora} se ha guardado correctamente."}
 
 
-def cancelar_reservas_usuario(usuario: str) -> dict:
+def cancelar_reserva_individual(usuario: str, sala: str, hora: str) -> dict:
     reservas = cargar_reservas()
-    cambios = 0
 
-    for sala, horas in reservas.items():
-        for hora, valor in horas.items():
-            if valor == usuario:
-                reservas[sala][hora] = "Libre"
-                cambios += 1
+    if sala not in reservas:
+        return {"ok": False, "mensaje": "Sala no encontrada."}
 
+    if hora not in reservas[sala]:
+        return {"ok": False, "mensaje": "Hora no válida."}
+
+    valor_actual = reservas[sala][hora]
+
+    if valor_actual == "Libre":
+        return {"ok": False, "mensaje": "Esa reserva ya se encuentra libre."}
+
+    if valor_actual != usuario:
+        return {"ok": False, "mensaje": "Solo puedes cancelar tus propias reservas."}
+
+    reservas[sala][hora] = "Libre"
     guardar_reservas(reservas)
 
-    if cambios == 0:
-        return {"ok": False, "mensaje": "No tienes reservas activas para cancelar."}
-
-    return {"ok": True, "mensaje": "Tus reservas fueron canceladas correctamente."}
+    return {"ok": True, "mensaje": f"La reserva de {sala} a las {hora} fue cancelada correctamente."}
 
 
 def construir_historial_usuario(reservas: dict, usuario: str) -> list[dict]:
@@ -88,5 +107,5 @@ def construir_historial_usuario(reservas: dict, usuario: str) -> list[dict]:
                     "estado": "Activa"
                 })
 
-    historial.sort(key=lambda item: item["hora"])
+    historial.sort(key=lambda item: (item["hora"], item["sala"]))
     return historial
