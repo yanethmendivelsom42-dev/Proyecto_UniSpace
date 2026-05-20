@@ -1,46 +1,28 @@
-# Entornos virtuales 
+# Entornos virtuales
+venv/
+env/
+ENV/
 
-venv/ 
+# Variables de entorno
+.env
 
-env/ 
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
 
-ENV/ 
+# IDE
+.vscode/
+.idea/
 
-.env 
+# Archivos locales
+*.log
+.DS_Store
 
-# Python 
-
-__pycache__/ 
-
-*.pyc 
-
-*.pyo 
-
-*.pyd 
-
-.Python 
-
-# IDE 
-
-.vscode/ 
-
-.idea/ 
-
- 
-
-# Archivos locales 
-
-*.log 
-
-.DS_Store 
-
- 
-
-# Azure 
-
-bin/ 
-
-obj/ 
-
-deploy.zip 
+# Azure
+bin/
+obj/
+deploy.zip
 
