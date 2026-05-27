@@ -35,6 +35,18 @@ def mostrar_login(request: Request, mensaje: str = ""):
     )
 
 
+@router.get("/login", response_class=HTMLResponse)
+def mostrar_login_page(request: Request, mensaje: str = ""):
+    """Mostrar página de login cuando acceden directamente a /login"""
+    return templates.TemplateResponse(
+        "login.html",
+        {
+            "request": request,
+            "mensaje": mensaje
+        }
+    )
+
+
 @router.post("/login", response_class=HTMLResponse)
 def login(
     request: Request,
