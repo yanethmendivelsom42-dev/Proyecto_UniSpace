@@ -98,6 +98,14 @@
       background: rgba(255,255,255,0.12);
       border-radius: 100px;
       padding: 5px 14px 5px 5px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+      position: relative;
+      z-index: 101;
+    }
+
+    .user-chip:hover {
+      background: rgba(255,255,255,0.18);
     }
 
     .user-avatar {
@@ -110,29 +118,126 @@
       justify-content: center;
       font-weight: 800;
       color: #1b2a44;
+      flex-shrink: 0;
     }
 
     .user-label {
       color: white;
       font-size: 14px;
       font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 150px;
     }
 
-    .logout-button {
-      margin-left: 16px;
-      padding: 10px 14px;
-      border-radius: 12px;
+    /* Dropdown Menu Styles */
+    .user-dropdown {
+      position: absolute;
+      top: 70px;
+      right: 28px;
       background: white;
-      color: var(--uc-blue);
-      font-weight: 700;
-      text-decoration: none;
-      border: 1px solid rgba(0, 87, 168, 0.16);
-      transition: background 0.2s ease;
-      cursor: pointer;
+      border-radius: 14px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+      min-width: 280px;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-8px);
+      transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease;
+      z-index: 102;
     }
 
-    .logout-button:hover {
-      background: #f4f8fd;
+    .user-dropdown.visible {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    .dropdown-arrow {
+      position: absolute;
+      top: -6px;
+      right: 20px;
+      width: 0;
+      height: 0;
+      border-left: 6px solid transparent;
+      border-right: 6px solid transparent;
+      border-bottom: 6px solid white;
+    }
+
+    .dropdown-content {
+      padding: 16px;
+    }
+
+    .dropdown-user-info {
+      text-align: center;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 16px;
+    }
+
+    .dropdown-user-avatar {
+      width: 48px;
+      height: 48px;
+      background: var(--uc-blue);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      color: white;
+      font-size: 18px;
+      margin: 0 auto 10px;
+    }
+
+    .dropdown-user-name {
+      font-weight: 700;
+      color: var(--text);
+      font-size: 15px;
+      margin-bottom: 4px;
+    }
+
+    .dropdown-user-email {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .dropdown-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .dropdown-btn {
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: none;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: center;
+      text-decoration: none;
+      display: block;
+    }
+
+    .dropdown-btn-logout {
+      background: var(--red-bg);
+      color: var(--red);
+      border: 1px solid #FCA5A5;
+    }
+
+    .dropdown-btn-logout:hover {
+      background: #FEF2F2;
+    }
+
+    .dropdown-btn-login {
+      background: var(--uc-blue);
+      color: white;
+      border: 1px solid var(--uc-blue);
+    }
+
+    .dropdown-btn-login:hover {
+      background: var(--uc-blue-dark);
     }
 
     .logout-panel-backdrop {
@@ -599,14 +704,43 @@
       </div>
     </div>
 
-    <div class="nav-right">
-      <div class="user-chip">
-        <div class="user-avatar">{{ (usuario[:1] if usuario else "U")|upper }}</div>
+    <div class="nav-right" style="position: relative;">
+      <div class="user-chip" id="user-chip-trigger">
+        <div class="user-avatar">{{ (usuario[:1] if usuario else "I")|upper }}</div>
         <span class="user-label">{{ usuario if usuario else "Invitado" }}</span>
       </div>
-      {% if logueado %}
-      <button type="button" id="open-logout-panel" class="logout-button">Cerrar sesión</button>
-      {% endif %}
+
+      <!-- User Dropdown Menu -->
+      <div class="user-dropdown" id="user-dropdown">
+        <div class="dropdown-arrow"></div>
+        <div class="dropdown-content">
+          {% if logueado %}
+            <!-- USUARIO AUTENTICADO -->
+            <div class="dropdown-user-info">
+              <div class="dropdown-user-avatar">{{ (usuario[:1] if usuario else "U")|upper }}</div>
+              <div class="dropdown-user-name">{{ usuario }}</div>
+              <div class="dropdown-user-email">Sesión activa</div>
+            </div>
+            <div class="dropdown-actions">
+              <button type="button" class="dropdown-btn dropdown-btn-logout" id="logout-trigger">
+                🚪 Cerrar sesión
+              </button>
+            </div>
+          {% else %}
+            <!-- USUARIO NO AUTENTICADO (INVITADO) -->
+            <div class="dropdown-user-info">
+              <div class="dropdown-user-avatar" style="background: #94A3B8; font-size: 24px;">👤</div>
+              <div class="dropdown-user-name">Invitado</div>
+              <div class="dropdown-user-email">Modo público</div>
+            </div>
+            <div class="dropdown-actions">
+              <a href="/login" class="dropdown-btn dropdown-btn-login">
+                🔐 Iniciar sesión
+              </a>
+            </div>
+          {% endif %}
+        </div>
+      </div>
     </div>
   </nav>
 
@@ -805,23 +939,53 @@
   </div>
 
   <script>
-    const openLogoutPanel = document.getElementById('open-logout-panel');
+    // Dropdown toggle functionality
+    const userChipTrigger = document.getElementById('user-chip-trigger');
+    const userDropdown = document.getElementById('user-dropdown');
+    const logoutTrigger = document.getElementById('logout-trigger');
     const logoutBackdrop = document.getElementById('logout-panel-backdrop');
     const cancelLogout = document.getElementById('cancel-logout');
     const confirmLogout = document.getElementById('confirm-logout');
 
+    /**
+     * Toggle dropdown visibility
+     */
+    function toggleDropdown(event) {
+      event.stopPropagation();
+      userDropdown.classList.toggle('visible');
+    }
+
+    /**
+     * Close dropdown
+     */
+    function closeDropdown() {
+      userDropdown.classList.remove('visible');
+    }
+
+    /**
+     * Show logout confirmation panel
+     */
     function showLogoutPanel() {
+      closeDropdown();
       logoutBackdrop.classList.add('visible');
       logoutBackdrop.setAttribute('aria-hidden', 'false');
     }
 
+    /**
+     * Hide logout confirmation panel
+     */
     function hideLogoutPanel() {
       logoutBackdrop.classList.remove('visible');
       logoutBackdrop.setAttribute('aria-hidden', 'true');
     }
 
-    if (openLogoutPanel) {
-      openLogoutPanel.addEventListener('click', showLogoutPanel);
+    // Event listeners
+    if (userChipTrigger) {
+      userChipTrigger.addEventListener('click', toggleDropdown);
+    }
+
+    if (logoutTrigger) {
+      logoutTrigger.addEventListener('click', showLogoutPanel);
     }
 
     if (cancelLogout) {
@@ -842,9 +1006,20 @@
       });
     }
 
+    // Close dropdown when clicking outside
+    document.addEventListener('click', (event) => {
+      if (!event.target.closest('.user-chip') && !event.target.closest('.user-dropdown')) {
+        closeDropdown();
+      }
+    });
+
+    // Close dropdown on Escape key
     document.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape' && logoutBackdrop.classList.contains('visible')) {
-        hideLogoutPanel();
+      if (event.key === 'Escape') {
+        closeDropdown();
+        if (logoutBackdrop.classList.contains('visible')) {
+          hideLogoutPanel();
+        }
       }
     });
   </script>
