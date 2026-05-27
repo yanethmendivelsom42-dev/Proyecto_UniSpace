@@ -118,10 +118,90 @@
       font-weight: 600;
     }
 
+    .logout-button {
+      margin-left: 16px;
+      padding: 10px 14px;
+      border-radius: 12px;
+      background: white;
+      color: var(--uc-blue);
+      font-weight: 700;
+      text-decoration: none;
+      border: 1px solid rgba(0, 87, 168, 0.16);
+      transition: background 0.2s ease;
+      cursor: pointer;
+    }
+
+    .logout-button:hover {
+      background: #f4f8fd;
+    }
+
+    .logout-panel-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(10, 25, 56, 0.42);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 50;
+      padding: 24px;
+    }
+
+    .logout-panel-backdrop.visible {
+      display: flex;
+    }
+
+    .logout-panel {
+      width: min(440px, 100%);
+      background: white;
+      border-radius: 22px;
+      padding: 28px 26px;
+      box-shadow: 0 28px 70px rgba(0, 0, 0, 0.16);
+      text-align: center;
+    }
+
+    .logout-panel h2 {
+      margin: 0 0 14px;
+      font-size: 22px;
+      color: #12263f;
+    }
+
+    .logout-panel p {
+      margin: 0 0 24px;
+      color: #475569;
+      line-height: 1.7;
+    }
+
+    .logout-panel-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .logout-btn-confirm,
+    .logout-btn-cancel {
+      padding: 12px 18px;
+      border-radius: 14px;
+      font-size: 15px;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+    }
+
+    .logout-btn-confirm {
+      background: var(--uc-blue);
+      color: white;
+    }
+
+    .logout-btn-cancel {
+      background: #f4f6fb;
+      color: #1f2937;
+    }
+
     .app-body {
       display: flex;
       flex: 1;
-    }
+    
 
     .sidebar {
       width: 220px;
@@ -309,9 +389,32 @@
     }
 
     .slot.ocupado {
-       background: #FEF2F2;
-       color: #DC2626;
-       border: 1px solid #FCA5A5;
+      background: #FEF2F2;
+      color: #DC2626;
+      border: 1px solid #FCA5A5;
+    }
+
+    .slot.ocupado-publico {
+      background: #f3f4f6;
+      color: #475569;
+      border: 1px solid #d1d5db;
+      opacity: 0.75;
+    }
+
+    .slot.ocupado-publico::before {
+      content: "";
+      display: none;
+    }
+
+    .public-note {
+      padding: 16px 18px;
+      border-radius: 14px;
+      background: #f8fafc;
+      color: #475569;
+      font-size: 14px;
+      border: 1px solid #d1d5db;
+      margin-top: 16px;
+      line-height: 1.6;
     }
 
     .legend {
@@ -319,7 +422,7 @@
       gap: 12px;
       flex-wrap: wrap;
       padding: 14px 20px 18px;
-    }
+    
 
     .legend-item {
       display: inline-flex;
@@ -348,6 +451,13 @@
 
     .legend-badge.ocupado {
       background: #FEF2F2;
+      border-color: #FCA5A5;
+    }
+
+    .legend-badge.publico {
+      background: #f3f4f6;
+      border-color: #d1d5db;
+    }
       border-color: #FCA5A5;
     }
 
@@ -494,18 +604,34 @@
     <div class="nav-right">
       <div class="user-chip">
         <div class="user-avatar">{{ (usuario[:1] if usuario else "U")|upper }}</div>
-        <span class="user-label">{{ usuario if usuario else "Usuario" }}</span>
+        <span class="user-label">{{ usuario if usuario else "Invitado" }}</span>
       </div>
+      {% if logueado %}
+      <button type="button" id="open-logout-panel" class="logout-button">Cerrar sesión</button>
+      {% endif %}
     </div>
   </nav>
+
+  <div id="logout-panel-backdrop" class="logout-panel-backdrop" aria-hidden="true">
+    <div class="logout-panel" role="dialog" aria-modal="true" aria-labelledby="logout-panel-title">
+      <h2 id="logout-panel-title">Cerrar sesión</h2>
+      <p>¿Estás seguro de que quieres cerrar sesión? Se cerrará tu sesión actual y volverás a la vista pública.</p>
+      <div class="logout-panel-actions">
+        <button type="button" id="confirm-logout" class="logout-btn-confirm">Sí, cerrar sesión</button>
+        <button type="button" id="cancel-logout" class="logout-btn-cancel">No, permanecer</button>
+      </div>
+    </div>
+  </div>
 
   <div class="app-body">
     <aside class="sidebar">
       <div class="sidebar-title">Principal</div>
       <nav class="sidebar-menu">
-        <a href="/dashboard?usuario={{ usuario }}" class="menu-item active">🏛 Salas</a>
-        <a href="/dashboard?usuario={{ usuario }}" class="menu-item">📅 Reservas</a>
-        <a href="/dashboard?usuario={{ usuario }}" class="menu-item">🕘 Historial</a>
+        <a href="/dashboard?view=salas" class="menu-item {% if vista == 'salas' %}active{% endif %}">🏛 Salas</a>
+        {% if logueado %}
+        <a href="/dashboard?view=reservas" class="menu-item {% if vista == 'reservas' %}active{% endif %}">📅 Reservas</a>
+        <a href="/dashboard?view=historial" class="menu-item {% if vista == 'historial' %}active{% endif %}">🕘 Historial</a>
+        {% endif %}
       </nav>
     </aside>
 
@@ -516,14 +642,34 @@
 
       <div class="page-header">
         <div class="page-title">
-          <h1>Calendario de Salas</h1>
-          <p>Disponibilidad en tiempo real · Hoy</p>
+          <h1>
+            {% if vista == "reservas" %}
+              Reservar sala
+            {% elif vista == "historial" %}
+              Historial de reservas
+            {% else %}
+              Calendario de Salas
+            {% endif %}
+          </h1>
+          <p>
+            {% if vista == "reservas" %}
+              Selecciona una sala y horario para crear una nueva reserva.
+            {% elif vista == "historial" %}
+              Revisa las reservas activas registradas bajo tu usuario.
+            {% else %}
+              Disponibilidad en tiempo real · Hoy
+            {% endif %}
+          </p>
         </div>
         <div class="mini-date">
           <div class="d1">Sistema activo</div>
           <div class="d2">UniSpace</div>
         </div>
       </div>
+
+      {% if not logueado %}
+      <div class="action-msg">Modo público: puedes ver la disponibilidad global, pero debes iniciar sesión para reservar o ver tu historial.</div>
+      {% endif %}
 
       <div class="stats">
         <div class="stat">
@@ -567,6 +713,8 @@
                     <span class="slot libre">Libre</span>
                   {% elif estado == usuario %}
                     <span class="slot mia">Mi reserva</span>
+                  {% elif not logueado %}
+                    <span class="slot ocupado-publico">Reservada</span>
                   {% else %}
                     <span class="slot ocupado">Ocupado</span>
                   {% endif %}
@@ -580,16 +728,17 @@
             <span class="legend-item"><span class="legend-badge libre"></span> Libre</span>
             <span class="legend-item"><span class="legend-badge mia"></span> Mi reserva</span>
             <span class="legend-item"><span class="legend-badge ocupado"></span> Ocupado</span>
+            <span class="legend-item"><span class="legend-badge publico"></span> Reservada (solo lectura)</span>
           </div>
         </div>
 
         <div class="right">
+          {% if vista == "reservas" %}
           <div class="card">
             <div class="card-head">Nueva Reserva</div>
             <div class="form-wrap">
+              {% if logueado %}
               <form action="/reservar" method="post">
-                <input type="hidden" name="usuario" value="{{ usuario }}">
-
                 <label for="sala">Sala</label>
                 <select id="sala" name="sala" class="f-select" required>
                   <option value="" disabled selected>Selecciona una sala...</option>
@@ -608,37 +757,98 @@
 
                 <button type="submit" class="btn-book">Confirmar reserva</button>
               </form>
+              {% else %}
+              <div class="public-note">Inicia sesión para interactuar con las salas y reservar horarios.</div>
+              {% endif %}
             </div>
           </div>
-
+          {% elif vista == "historial" %}
           <div class="card">
-            <div class="card-head">Mis reservas activas</div>
-            {% if historial_reciente %}
-              {% for item in historial_reciente %}
-              <div class="reservation-item">
-                <div class="reservation-top">
-                  <div>
-                    <div class="reservation-title">{{ item.sala }} - {{ item.hora }}</div>
-                    <div class="reservation-sub">Reservada por ti</div>
+            <div class="card-head">Historial de reservas</div>
+            {% if logueado %}
+              {% if historial_reciente %}
+                {% for item in historial_reciente %}
+                <div class="reservation-item">
+                  <div class="reservation-top">
+                    <div>
+                      <div class="reservation-title">{{ item.sala }} - {{ item.hora }}</div>
+                      <div class="reservation-sub">Reservada por ti</div>
+                    </div>
+                    <span class="reservation-status">Activa</span>
                   </div>
-                  <span class="reservation-status">Activa</span>
-                </div>
 
-                <form action="/cancelar" method="post" class="inline-form">
-                  <input type="hidden" name="usuario" value="{{ usuario }}">
-                  <input type="hidden" name="sala" value="{{ item.sala }}">
-                  <input type="hidden" name="hora" value="{{ item.hora }}">
-                  <button type="submit" class="btn-cancel">Cancelar reserva</button>
-                </form>
-              </div>
-              {% endfor %}
+                  <form action="/cancelar" method="post" class="inline-form">
+                    <input type="hidden" name="sala" value="{{ item.sala }}">
+                    <input type="hidden" name="hora" value="{{ item.hora }}">
+                    <button type="submit" class="btn-cancel">Cancelar reserva</button>
+                  </form>
+                </div>
+                {% endfor %}
+              {% else %}
+                <div class="empty-state">Aún no tienes reservas activas.</div>
+              {% endif %}
             {% else %}
-              <div class="empty-state">Aún no tienes reservas activas.</div>
+              <div class="public-note">Inicia sesión para ver y cancelar tus reservas personales.</div>
             {% endif %}
           </div>
+          {% else %}
+          <div class="card">
+            <div class="card-head">Resumen rápido</div>
+            {% if logueado %}
+            <div class="empty-state">Selecciona Reservas o Historial en el menú para gestionar tus espacios.</div>
+            {% else %}
+            <div class="empty-state">Estás en modo de lectura pública. Inicia sesión para reservar y ver tu historial personal.</div>
+            {% endif %}
+          </div>
+          {% endif %}
         </div>
       </div>
     </main>
   </div>
+
+  <script>
+    const openLogoutPanel = document.getElementById('open-logout-panel');
+    const logoutBackdrop = document.getElementById('logout-panel-backdrop');
+    const cancelLogout = document.getElementById('cancel-logout');
+    const confirmLogout = document.getElementById('confirm-logout');
+
+    function showLogoutPanel() {
+      logoutBackdrop.classList.add('visible');
+      logoutBackdrop.setAttribute('aria-hidden', 'false');
+    }
+
+    function hideLogoutPanel() {
+      logoutBackdrop.classList.remove('visible');
+      logoutBackdrop.setAttribute('aria-hidden', 'true');
+    }
+
+    if (openLogoutPanel) {
+      openLogoutPanel.addEventListener('click', showLogoutPanel);
+    }
+
+    if (cancelLogout) {
+      cancelLogout.addEventListener('click', hideLogoutPanel);
+    }
+
+    if (logoutBackdrop) {
+      logoutBackdrop.addEventListener('click', (event) => {
+        if (event.target === logoutBackdrop) {
+          hideLogoutPanel();
+        }
+      });
+    }
+
+    if (confirmLogout) {
+      confirmLogout.addEventListener('click', () => {
+        window.location.href = '/logout';
+      });
+    }
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && logoutBackdrop.classList.contains('visible')) {
+        hideLogoutPanel();
+      }
+    });
+  </script>
 </body>
 </html>

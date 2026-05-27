@@ -1,3 +1,6 @@
+from urllib.parse import quote_plus
+
+from patterns.observer import gestor_eventos
 from fastapi import APIRouter, Form, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 
@@ -11,6 +14,14 @@ from controllers.reserva_archivo_controller import (
 from core.config import HORAS, SALAS_BASE, templates
 
 router = APIRouter()
+
+
+def _obtener_usuario_activo(request: Request) -> str:
+    return request.session.get("usuario", "")
+
+
+def _validar_vista(view: str) -> str:
+    return view if view in {"salas", "reservas", "historial"} else "salas"
 
 
 @router.get("/", response_class=HTMLResponse)
@@ -42,13 +53,23 @@ def login(
             status_code=401
         )
 
-    return RedirectResponse(url=f"/dashboard?usuario={correo}", status_code=303)
+    request.session["usuario"] = correo.strip()
+    return RedirectResponse(url="/dashboard?view=salas", status_code=303)
+
+
+@router.get("/logout")
+def logout(request: Request):
+    request.session.clear()
+    mensaje = quote_plus("Sesión cerrada correctamente.")
+    return RedirectResponse(url=f"/dashboard?view=salas&mensaje={mensaje}", status_code=303)
 
 
 @router.get("/dashboard", response_class=HTMLResponse)
-def dashboard(request: Request, usuario: str = "", mensaje: str = ""):
+def dashboard(request: Request, view: str = "salas", mensaje: str = ""):
+    usuario = _obtener_usuario_activo(request)
+    vista = _validar_vista(view)
     reservas = obtener_reservas_dashboard()
-    historial_reciente = construir_historial_usuario(reservas, usuario)
+    historial_reciente = construir_historial_usuario(reservas, usuario) if usuario else []
 
     total_salas = len(SALAS_BASE)
     total_slots = len(SALAS_BASE) * len(HORAS)
@@ -75,6 +96,8 @@ def dashboard(request: Request, usuario: str = "", mensaje: str = ""):
             "salas": SALAS_BASE,
             "horas": HORAS,
             "usuario": usuario,
+            "logueado": bool(usuario),
+            "vista": vista,
             "mensaje": mensaje,
             "historial_reciente": historial_reciente,
             "total_salas": total_salas,
@@ -87,28 +110,28 @@ def dashboard(request: Request, usuario: str = "", mensaje: str = ""):
 
 
 @router.post("/reservar")
-def reservar(
-    sala: str = Form(...),
-    hora: str = Form(...),
-    usuario: str = Form(...)
-):
-    resultado = reservar_sala(sala, hora, usuario)
+def reservar(request: Request, sala: str = Form(...), hora: str = Form(...)):
+    usuario = _obtener_usuario_activo(request)
+    if not usuario:
+        return RedirectResponse(url=f"/?mensaje={quote_plus('Debes iniciar sesión para reservar.')}", status_code=303)
 
-    return RedirectResponse(
-        url=f"/dashboard?usuario={usuario}&mensaje={resultado['mensaje']}",
-        status_code=303
-    )
+    resultado = reservar_sala(sala, hora, usuario)
+    if resultado["ok"]:
+        gestor_eventos.publicar_reserva_creada(usuario, sala, hora)
+
+    mensaje = quote_plus(resultado["mensaje"])
+    return RedirectResponse(url=f"/dashboard?view=reservas&mensaje={mensaje}", status_code=303)
 
 
 @router.post("/cancelar")
-def cancelar(
-    usuario: str = Form(...),
-    sala: str = Form(...),
-    hora: str = Form(...)
-):
-    resultado = cancelar_reserva_individual(usuario, sala, hora)
+def cancelar(request: Request, sala: str = Form(...), hora: str = Form(...)):
+    usuario = _obtener_usuario_activo(request)
+    if not usuario:
+        return RedirectResponse(url=f"/?mensaje={quote_plus('Debes iniciar sesión para cancelar reservas.')}", status_code=303)
 
-    return RedirectResponse(
-        url=f"/dashboard?usuario={usuario}&mensaje={resultado['mensaje']}",
-        status_code=303
-    )
+    resultado = cancelar_reserva_individual(usuario, sala, hora)
+    if resultado["ok"]:
+        gestor_eventos.publicar_reserva_cancelada(usuario, sala, hora)
+
+    mensaje = quote_plus(resultado["mensaje"])
+    return RedirectResponse(url=f"/dashboard?view=historial&mensaje={mensaje}", status_code=303)
