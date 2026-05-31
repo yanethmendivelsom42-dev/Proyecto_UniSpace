@@ -1,55 +1,107 @@
-import json
-
-from core.config import RESERVAS_FILE, SALAS_BASE, HORAS
-from patterns.abstract_factory import obtener_fabrica
-from patterns.decorator import construir_servicio_reservas
-
-_fabrica = obtener_fabrica("produccion")
-_repo_reservas = _fabrica.crear_repositorio_reservas()
-_servicio = construir_servicio_reservas(_repo_reservas)
-
-
-def _estructura_base() -> dict:
-    return {sala: {hora: "Libre" for hora in HORAS} for sala in SALAS_BASE}
-
-
-def inicializar_reservas() -> None:
-    if not RESERVAS_FILE.exists() or RESERVAS_FILE.stat().st_size == 0:
-        _repo_reservas.guardar(_estructura_base())
-        return
-    try:
-        datos = _repo_reservas.obtener_todas()
-        if not isinstance(datos, dict):
-            _repo_reservas.guardar(_estructura_base())
-            return
-        for sala in SALAS_BASE:
-            if sala not in datos:
-                _repo_reservas.guardar(_estructura_base())
-                return
-    except Exception:
-        _repo_reservas.guardar(_estructura_base())
+from database import SessionLocal
+from services.reserva_service import ReservaService
 
 
 def obtener_reservas_dashboard() -> dict:
-    inicializar_reservas()
-    return _repo_reservas.obtener_todas()
+    db = SessionLocal()
+
+    try:
+        servicio = ReservaService(db)
+        return servicio.obtener_reservas_dashboard()
+
+    finally:
+        db.close()
 
 
-def reservar_sala(sala: str, hora: str, usuario: str) -> dict:
-    inicializar_reservas()
-    return _servicio.reservar(sala, hora, usuario)
+def reservar_sala(
+    sala: str,
+    hora: str,
+    usuario: str
+) -> dict:
+    db = SessionLocal()
+
+    try:
+        servicio = ReservaService(db)
+
+        codigo_usuario = _obtener_codigo_usuario_por_correo(
+            db,
+            usuario
+        )
+
+        if not codigo_usuario:
+            return {
+                "ok": False,
+                "mensaje": "Usuario no encontrado en la base de datos."
+            }
+
+        return servicio.reservar_sala(
+            sala,
+            hora,
+            codigo_usuario
+        )
+
+    finally:
+        db.close()
 
 
-def cancelar_reserva_individual(usuario: str, sala: str, hora: str) -> dict:
-    inicializar_reservas()
-    return _servicio.cancelar(sala, hora, usuario)
+def cancelar_reserva_individual(
+    usuario: str,
+    sala: str,
+    hora: str
+) -> dict:
+    db = SessionLocal()
+
+    try:
+        servicio = ReservaService(db)
+
+        return servicio.cancelar_reserva_individual(
+            usuario,
+            sala,
+            hora
+        )
+
+    finally:
+        db.close()
 
 
-def construir_historial_usuario(reservas: dict, usuario: str) -> list[dict]:
-    historial = []
-    for sala, horas in reservas.items():
-        for hora, valor in horas.items():
-            if valor == usuario:
-                historial.append({"sala": sala, "hora": hora, "estado": "Activa"})
-    historial.sort(key=lambda item: (item["hora"], item["sala"]))
-    return historial    
+def construir_historial_usuario(
+    reservas: dict,
+    usuario: str
+) -> list[dict]:
+    db = SessionLocal()
+
+    try:
+        servicio = ReservaService(db)
+
+        historial = servicio.construir_historial_usuario(
+            reservas,
+            usuario
+        )
+
+        historial.sort(
+            key=lambda item: (
+                item["hora"],
+                item["sala"]
+            )
+        )
+
+        return historial
+
+    finally:
+        db.close()
+
+
+def _obtener_codigo_usuario_por_correo(
+    db,
+    correo: str
+) -> str | None:
+    from models.database_models import Usuario
+
+    usuario = db.query(Usuario).filter(
+        Usuario.correo == correo
+    ).first()
+
+    if not usuario:
+        return None
+
+    return usuario.codigo_usuario
